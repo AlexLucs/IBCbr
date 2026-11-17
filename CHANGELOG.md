@@ -1,5 +1,11 @@
 # Changelog — IBC-Br por mês
 
+## 1.3.1 — 2026-11-17
+### Corrigido
+- Carregamento estatístico nos meses que fecham o trimestre (mar, jun, set, dez): agora se refere ao trimestre seguinte, como na tabela do BCB (set/2026 → `2026T4/2026T3` = x[set] / média do 3º tri). Antes mostrava `2026T3/2026T2`, que repetia o valor de Tri/tri(−1). Conferido célula a célula contra a tabela do BCB de set/2026: todas as linhas e colunas batem.
+- Em dezembro, pela mesma regra, o carregamento anual passa a ser `y+1/y` = x[dez] / média do ano, e o trimestral `(y+1)T1/yT4` (dez/2025 → `2026T1/2025T4` e `2026/2025`). Antes repetia a variação do ano fechado.
+- `tests/gerar_fixture.py` usa a mesma regra; casos 12/2024, 3/2025 e 6/2026 da fixture recalculados. Novo teste dos rótulos (`alvosCarregamento`).
+
 ## 1.3.0 — 2026-10-16
 ### Alterado
 - Carga sob demanda no lugar do histórico completo:
