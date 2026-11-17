@@ -8,8 +8,8 @@ const raiz = new URL("../", import.meta.url);
 const html = readFileSync(new URL("ibcbr.html", raiz), "utf8");
 const codigo = html.match(/<script id="calc">([\s\S]*?)<\/script>/)[1];
 const ctx = vm.createContext({Intl});
-vm.runInContext(codigo + ";this.api={COLUNAS,converterSerie,calcularColuna,formatar,chaveMes,unirIntervalos,cobre,janelaNecessaria,faixaAoRedor};", ctx);
-const {COLUNAS, converterSerie, calcularColuna, formatar, chaveMes, unirIntervalos, cobre, janelaNecessaria, faixaAoRedor} = ctx.api;
+vm.runInContext(codigo + ";this.api={COLUNAS,converterSerie,calcularColuna,formatar,chaveMes,unirIntervalos,cobre,janelaNecessaria,faixaAoRedor,alvosCarregamento,trimestreAnterior};", ctx);
+const {COLUNAS, converterSerie, calcularColuna, formatar, chaveMes, unirIntervalos, cobre, janelaNecessaria, faixaAoRedor, alvosCarregamento, trimestreAnterior} = ctx.api;
 const simples = x => JSON.parse(JSON.stringify(x)); // arrays do vm têm outro protótipo
 const fx = JSON.parse(readFileSync(new URL("tests/fixture.json", raiz), "utf8"));
 
@@ -45,6 +45,15 @@ t("faixaAoRedor cobre os 5 anos ao redor e respeita os limites", () => {
   const f = faixaAoRedor(2015,"2026-07");
   for(let a = 2013; a <= 2017; a++) for(let m = 1; m <= 12; m++)
     assert.ok(cobre([f], ...janelaNecessaria(a,m)), `${m}/${a}`);
+});
+t("carregamento aponta para o período seguinte nos meses de fechamento", () => {
+  const rot = (a,m) => { const r = alvosCarregamento(a,m); return `${r.rotuloTri}/${trimestreAnterior(r.rotuloTri)} ${r.anoAlvo}/${r.anoAlvo-1}`; };
+  assert.equal(rot(2026,7), "2026T3/2026T2 2026/2025");
+  assert.equal(rot(2026,9), "2026T4/2026T3 2026/2025");   // tabela do BCB de set/2026
+  assert.equal(rot(2026,10),"2026T4/2026T3 2026/2025");
+  assert.equal(rot(2026,12),"2027T1/2026T4 2027/2026");
+  assert.equal(rot(2026,1), "2026T1/2025T4 2026/2025");
+  assert.equal(rot(2026,3), "2026T2/2026T1 2026/2025");
 });
 t("formatar: meio para longe do zero, -0 e não finitos", () => {
   assert.equal(formatar(-0.25),"-0,3"); assert.equal(formatar(0.25),"0,3"); assert.equal(formatar(-0.04),"0,0");

@@ -21,11 +21,13 @@ def calc(sa, nsa, a, m):
     S = lambda aa, mm: sa[k(aa, mm)]; N = lambda aa, mm: nsa[k(aa, mm)]
     med = lambda f, aa, mm, n: sum(f(aa, mm-n+1+i) for i in range(n))/n
     sm  = lambda f, aa, mm, n: sum(f(aa, mm-n+1+i) for i in range(n))
-    it = (m-1)//3*3+1
+    # Carregamento: se m fecha o trimestre/ano, o alvo é o período seguinte (como na tabela do BCB).
+    it = m//3*3+1                      # 1º mês do trimestre-alvo (13 = jan de a+1)
+    aa = a+1 if m == 12 else a         # ano-alvo
     tri = [S(a, it+i) if it+i <= m else S(a, m) for i in range(3)]
-    ano = [S(a, i+1) if i+1 <= m else S(a, m) for i in range(12)]
+    ano = [S(a, i+1) if aa == a and i+1 <= m else S(a, m) for i in range(12)]
     return dict(varMes=pct(S(a,m),S(a,m-1)), varTri=pct(med(S,a,m,3),med(S,a,m-3,3)),
-        carregTri=pct(sum(tri)/3,med(S,a,it-1,3)), carregAno=pct(sum(ano)/12,med(S,a-1,12,12)),
+        carregTri=pct(sum(tri)/3,med(S,a,it-1,3)), carregAno=pct(sum(ano)/12,med(S,aa-1,12,12)),
         varMes12=pct(N(a,m),N(a-1,m)), varTri4=pct(med(N,a,m,3),med(N,a-1,m,3)),
         varAno=pct(sm(N,a,m,m),sm(N,a-1,m,m)), acum12=pct(sm(N,a,m,12),sm(N,a,m-12,12)))
 def fmt(v):
